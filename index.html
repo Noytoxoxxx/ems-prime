@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMS - Prime RP</title>
+    <!-- Tailwind CSS pour un design moderne et rapide -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .zoom-img { transition: transform 0.5s ease; }
+        .card-hover:hover .zoom-img { transform: scale(1.06); }
+        
+        /* Animation pour l'effet de brume lumineuse en arrière-plan */
+        @keyframes floatGlow {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.2); }
+            66% { transform: translate(-20px, 20px) scale(0.8); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-glow {
+            animation: floatGlow 12s infinite ease-in-out;
+        }
+
+        /* ANIMATION DES PARTICULES EN PUR CSS */
+        @keyframes particleUp {
+            0% { transform: translateY(105vh) translateX(0) scale(0.5); opacity: 0; }
+            10% { opacity: 0.4; }
+            90% { opacity: 0.4; }
+            100% { transform: translateY(-5vh) translateX(20px) scale(1.2); opacity: 0; }
+        }
+        .particle {
+            position: absolute;
+            bottom: -20px;
+            background: rgba(239, 68, 68, 0.25); /* Rouge médical transparent */
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particleUp linear infinite;
+        }
+        /* Teinte bleue pour alterner les styles de particules */
+        .particle-blue {
+            background: rgba(59, 130, 246, 0.2 font-medium);
+        }
+        /* 🚫 Désactive la sélection et le surlignage sur tout le site */
+        * {
+        -webkit-user-select: none; /* Safari */
+        -ms-user-select: none;     /* IE 10+ */
+        user-select: none;         /* Standard */
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- SYSTÈME DE PARTICULES ANIMÉES (Générées pour couvrir tout l'écran) -->
+    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none" id="particle-container">
+        <!-- Les particules seront injectées ici proprement en JS pour éviter les doublons de code -->
+    </div>
+
+    <!-- EFFET ANIMÉ DE FOND : Brumes lumineuses médicales dynamiques -->
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0 opacity-40">
+        <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-red-900/20 blur-[120px] animate-glow"></div>
+        <div class="absolute top-[40%] right-[-10%] w-[45vw] h-[45vw] rounded-full bg-blue-900/15 blur-[130px] animate-glow" style="animation-delay: -4s;"></div>
+        <div class="absolute bottom-[-10%] left-[20%] w-[40vw] h-[40vw] rounded-full bg-emerald-900/10 blur-[100px] animate-glow" style="animation-delay: -8s;"></div>
+    </div>
+
+    <!-- BARRE DE NAVIGATION -->
+<!-- BARRE DE NAVIGATION -->
+<nav class="bg-slate-900/80 backdrop-blur-md shadow-lg border-b border-slate-800 sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+        
+        <!-- ICI : La nouvelle ligne du logo modifiée -->
+        <a href="#" onclick="goHome(event)" class="flex items-center space-x-3 group cursor-pointer no-underline">
+            <div class="bg-red-600 text-white p-2 rounded-lg animate-pulse shadow-lg shadow-red-600/30 group-hover:bg-red-500 transition-colors">
+                <i class="fa-solid fa-house-medical text-xl"></i>
+            </div>
+            <span class="font-bold text-xl tracking-wide text-white">PRIME <span class="text-red-500 group-hover:text-red-400 transition-colors">EMS</span></span>
+        </a>
+        
+        <!-- NOUVEAU STATUT EN HAUT À DROITE -->
+        <div class="text-sm font-semibold bg-red-950 text-red-400 border border-red-800/50 px-3 py-1 rounded-full flex items-center gap-2">
+            <span class="h-2 w-2 bg-red-500 rounded-full animate-ping"></span> Urgences : 911 | Lignes Ouvertes
+        </div>
+    </div>
+</nav>
+
+    <!-- ACCUEIL PRINCIPAL -->
+    <main class="max-w-4xl mx-auto px-4 py-12 flex-grow relative z-10">
+        
+        <!-- Hero Section -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-extrabold text-white mb-4 tracking-tight">Centre Médical de Los Santos</h1>
+            <p class="text-lg text-slate-400 max-w-2xl mx-auto">Portail officiel des services de secours de Prime RP. Prenez rendez-vous pour vos examens ou rejoignez nos équipes dès aujourd'hui.</p>
+        </div>
+
+        <!-- Boutons d'action principaux -->
+        <div class="grid md:grid-cols-2 gap-6 mb-12">
+            <button onclick="switchTab('rdv')" class="group p-6 bg-slate-900 border border-slate-800 rounded-2xl shadow-xl hover:border-blue-500/50 hover:-translate-y-1 transition-all duration-300 text-left cursor-pointer">
+                <div class="bg-blue-950 text-blue-400 w-12 h-12 rounded-xl flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300 shadow-inner">
+                    <i class="fa-solid fa-calendar-check text-xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">Prendre Rendez-vous</h3>
+                <p class="text-slate-400 text-sm">Consultations, certificats médicaux, PPA, ou check-up complet.</p>
+            </button>
+
+            <button onclick="switchTab('recrutement')" class="group p-6 bg-slate-900 border border-slate-800 rounded-2xl shadow-xl hover:border-red-500/50 hover:-translate-y-1 transition-all duration-300 text-left cursor-pointer">
+                <div class="bg-red-950 text-red-400 w-12 h-12 rounded-xl flex items-center justify-center mb-4 group-hover:bg-red-600 group-hover:text-white transition-colors duration-300 shadow-inner">
+                    <i class="fa-solid fa-user-doctor text-xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">Rejoindre l'EMS</h3>
+                <p class="text-slate-400 text-sm">Déposez votre candidature pour intégrer le corps médical du serveur.</p>
+            </button>
+        </div>
+
+        <!-- ZONE DYNAMIQUE (Formulaires - Cachés par défaut) -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 md:p-8 hidden mb-12 transform transition-all duration-500 scale-95 scroll-mt-24" id="form-container">
+            
+            <!-- FORMULAIRE RDV -->
+            <div id="tab-rdv" class="tab-content hidden">
+                <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-days text-blue-400"></i> Demande de Consultation
+                </h2>
+                <form action="send.php" method="POST" class="space-y-4">
+                    <input type="hidden" name="form_type" value="rdv">
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Nom RP</label>
+                            <input type="text" name="nom" required class="w-full border border-slate-700 rounded-lg p-2.5 bg-slate-950 text-white focus:border-blue-500 outline-hidden transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Prénom RP</label>
+                            <input type="text" name="prenom" required class="w-full border border-slate-700 rounded-lg p-2.5 bg-slate-950 text-white focus:border-blue-500 outline-hidden transition">
+                        </div>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Disponibilités (Date et Heure)</label>
+                            <input type="text" name="dispo" placeholder="Ex: Ce soir 21h / Samedi après-midi" required class="w-full border border-slate-700 rounded-lg p-2.5 bg-slate-950 text-white focus:border-blue-500 outline-hidden transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Contact (Discord ou N° de Téléphone)</label>
+                            <input type="text" name="contact" placeholder="Ex: Karma#0001 / 555-0123" required class="w-full border border-slate-700 rounded-lg p-2.5 bg-slate-950 text-white focus:border-blue-500 outline-hidden transition">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Motif du rendez-vous</label>
+                        <select name="motif" required class="w-full border border-slate-700 rounded-lg p-2.5 bg-slate-950 text-white focus:border-blue-500 outline-hidden transition">
+                            <option value="Visite de routine / Check-up">Visite de routine / Check-up</option>
+                            <option value="Certificat médical (PPA, etc.)">Certificat médical (PPA, Job)</option>
+                            <option value="Soin de blessure chronique">Rééducation / Soins longs</option>
+                            <option value="Autre raison (Préciser ci-dessous)">Autre (Préciser dans les commentaires)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Commentaire ou détails (Optionnel)</label>
+                        <textarea name="commentaire" rows="3" class="w-full border border-slate-700 rounded-lg p-2.5 bg-slate-950 text-white focus:border-blue-500 outline-hidden transition"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-lg shadow-blue-600/20 transition-all cursor-pointer">
+                        <i class="fa-solid fa-paper-plane mr-2"></i>Envoyer la demande
+                    </button>
+                </form>
+            </div>
+
+            <!-- FORMULAIRE RECRUTEMENT SYSTEME MULTI-ETAPES -->
+            <div id="tab-recrutement" class="tab-content hidden">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-file-medical text-red-500"></i> Candidature EMS
+                    </h2>
+                    <span id="step-indicator" class="text-xs font-bold bg-red-950 text-red-400 border border-red-900/50 px-3 py-1 rounded-full">Étape 1 / 4</span>
+                </div>
+                
+                <!-- Barre de progression visuelle -->
+                <div class="w-full bg-slate-950 h-2 rounded-full mb-8 overflow-hidden border border-slate-800">
+                    <div id="progress-bar" class="bg-red-500 h-full w-1/4 transition-all duration-300"></div>
+                </div>
+
+                <form action="send.php" method="POST" id="recruitment-form" class="space-y-6">
+                    <input type="hidden" name="form_type" value="recrutement">
+
+                    <!-- ÉTAPE 1 : ÉTAT CIVIL ET VILLE -->
+                    <div class="step-section space-y-4" id="step-1">
+                        <div class="bg-red-950/40 p-3 rounded-lg border border-red-900/50 flex items-center gap-3 text-xs text-red-300 mb-2">
+                            <i class="fa-solid fa-clock animate-pulse"></i>
+                            <span><strong>Note du Secrétariat :</strong> Prenez le temps de soigner vos réponses et votre orthographe.</span>
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-300 mb-1">1. Nom et Prénom RP</label>
+                                <input type="text" name="q1_nom_prenom" required class="w-full border border-slate-700 rounded-lg p-2.5 bg-slate-950 text-white focus:border-red-500 outline-hidden transition">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-300 mb-1">2. Quel est votre âge (RP et OOC) ?</label>
+                                <input type="text" name="q2_age" placeholder="Ex: 24 ans (RP) / 19 ans (OOC)" required class="w-full border border-slate-700 rounded-lg p-2.5 bg-slate-950 text-white focus:border-red-500 outline-hidden transition">
+                            </div>
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-300 mb-1">3. Permis de conduire (Le(s)quel(s)) ?</label>
+                                <input type="text" name="q3_permis" placeholder="Ex: Voiture, Moto, Poids Lourds..." required class="w-full border border-slate-700 rounded-lg p-2.5 bg-slate-950 text-white focus:border-red-500 outline-hidden transition">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-300 mb-1">4. Depuis quand êtes-vous en ville ?</label>
+                                <input type="text" name="q4_anciennete" placeholder="Ex: 3 mois / 2 ans" required class="w-full border border-slate-700 rounded-lg p-2.5 bg-slate-950 text-white focus:border-red-500 outline-hidden transition">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-300 mb-1">Identifiant Discord (Pour la réponse)</label>
+                            <input type="text" name="discord_tag" placeholder="Ex: mon_pseudo_discord" required class="w-full border border-slate-700 rounded-lg p-2.5 bg-slate-950 text-white focus:border-red-500 outline-hidden transition">
+                        </div>
+                    </div>
+
+                    <!-- ÉTAPE 2 : PARCOURS PRO ET EXPÉRIENCE -->
+                    <div class="step-section space-y-4 hidden" id="step-2">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-300 mb-1">5. Quel est votre métier actuel ?</label>
+                            <input type="text" name="q5_metier_actuel" placeholder="Ex: Chômeur / Éboueur / Mécano" required class="w-full border border-slate-700 rounded-lg p-2.5 bg-slate-950 text-white focus:border-red-500 outline-hidden transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-300 mb-1">6. Quels métiers avez-vous déjà exercés par le passé ?</label>
+                            <textarea name="q6_parcours" rows="2" placeholder="Détaillez vos anciennes entreprises ou vos expériences..." required class="w-full border border-slate-700 rounded-lg p-2.5 bg-slate-950 text-white focus:border-red-500 outline-hidden transition"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-300 mb-1">7. Avez-vous des compétences dans le domaine médical ?</label>
+                            <textarea name="q7_competences" rows="2" placeholder="Des notions de secourisme, anciens grades EMS sur d'autres villes, etc..." required class="w-full border border-slate-700 rounded-lg p-2.5 bg-slate-950 text-white focus:border-red-500 outline-hidden transition"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- ÉTAPE 3 : MOTIVATIONS ET PROFIL -->
+                    <div class="step-section space-y-4 hidden" id="step-3">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-300 mb-1">8. Quelles sont vos motivations à entrer chez les EMS ?</label>
+                            <textarea name="q8_motivations" rows="3" placeholder="Pourquoi l'EMS et pas un autre service public ?" required class="w-full border border-slate-700 rounded-lg p-2.5 bg-slate-950 text-white focus:border-red-500 outline-hidden transition"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-300 mb-1">9. Pourquoi devrions-nous vous prendre et pas quelqu'un d'autre ?</label>
+                            <textarea name="q9_pourquoi_vous" rows="2" placeholder="Vos forces, votre valeur ajoutée pour l'équipe..." required class="w-full border border-slate-700 rounded-lg p-2.5 bg-slate-950 text-white focus:border-red-500 outline-hidden transition"></textarea>
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-300 mb-1">10. Vos 3 grandes qualités</label>
+                                <input type="text" name="q10_qualites" placeholder="Ex: Patient, Rigoureux, Calme" required class="w-full border border-slate-700 rounded-lg p-2.5 bg-slate-950 text-white focus:border-red-500 outline-hidden transition">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-300 mb-1">11. Vos 3 défauts principaux</label>
+                                <input type="text" name="q11_defauts" placeholder="Ex: Têtu, Pipelet, Perfectionniste" required class="w-full border border-slate-700 rounded-lg p-2.5 bg-slate-950 text-white focus:border-red-500 outline-hidden transition">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ÉTAPE 4 : DISPONIBILITÉS -->
+                    <div class="step-section space-y-4 hidden" id="step-4">
+                        <div class="bg-emerald-950/40 p-4 rounded-xl border border-emerald-900/50 flex items-start gap-3 text-emerald-400 mb-4">
+                            <i class="fa-solid fa-circle-check text-emerald-400 mt-0.5 text-base"></i>
+                            <div>
+                                <span class="font-bold block text-sm">Dernière étape !</span>
+                                <span class="text-xs text-slate-400">Renseignez vos créneaux horaires habituels de connexion en ville pour terminer.</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-300 mb-1">12. Disponibilités - En Semaine (Lundi au Vendredi)</label>
+                            <input type="text" name="q12_semaine" placeholder="Ex: 17h00 à 23h30 / Mercredi toute la journée" required class="w-full border border-slate-700 rounded-lg p-2.5 bg-slate-950 text-white focus:border-red-500 outline-hidden transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-300 mb-1">13. Disponibilités - Le Week-end (Samedi & Dimanche)</label>
+                            <input type="text" name="q13_weekend" placeholder="Ex: Libre non-stop sauf dimanche soir" required class="w-full border border-slate-700 rounded-lg p-2.5 bg-slate-950 text-white focus:border-red-500 outline-hidden transition">
+                        </div>
+                    </div>
+
+                    <!-- NAVIGATION DU FORMULAIRE ETAPE PAR ETAPE -->
+                    <div class="flex justify-between items-center pt-4 border-t border-slate-800">
+                        <button type="button" id="prev-btn" onclick="nextStep(-1)" class="px-5 py-2.5 border border-slate-700 rounded-lg text-sm font-medium text-slate-300 bg-slate-950 hover:bg-slate-800 transition cursor-pointer invisible">
+                            <i class="fa-solid fa-arrow-left mr-2"></i>Précédent
+                        </button>
+                        
+                        <button type="button" id="next-btn" onclick="nextStep(1)" class="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold text-sm rounded-lg shadow-md transition cursor-pointer flex items-center">
+                            <span>Suivant</span><i class="fa-solid fa-arrow-right ml-2" id="btn-icon"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- FORMULAIRE REGIE PUB -->
+            <div id="tab-pub" class="tab-content hidden">
+                <h2 class="text-2xl font-bold text-amber-400 mb-6 flex items-center gap-2">
+                    <i class="fa-solid fa-rectangle-ad text-amber-400"></i> Demande de Partenariat Publicitaire
+                </h2>
+                <form action="send.php" method="POST" class="space-y-4">
+                    <input type="hidden" name="form_type" value="pub">
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Nom & Prénom (Demandeur RP)</label>
+                            <input type="text" name="nom_rp" placeholder="Ex: John Doe" required class="w-full border border-slate-700 rounded-lg p-2.5 bg-slate-950 text-white focus:border-amber-500 outline-hidden transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Nom de l'Entreprise / Commerce</label>
+                            <input type="text" name="entreprise" placeholder="Ex: Horizon Mechanics / Vanilla Unicorn" required class="w-full border border-slate-700 rounded-lg p-2.5 bg-slate-950 text-white focus:border-amber-500 outline-hidden transition">
+                        </div>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Contact Principal (Discord ou Téléphone)</label>
+                            <input type="text" name="contact" placeholder="Ex: John_LS#1234 / 555-4812" required class="w-full border border-slate-700 rounded-lg p-2.5 bg-slate-950 text-white focus:border-amber-500 outline-hidden transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Durée souhaitée de l'affichage</label>
+                            <select name="duree" required class="w-full border border-slate-700 rounded-lg p-2.5 bg-slate-950 text-white focus:border-amber-500 outline-hidden transition">
+                                <option value="1 Semaine (Tarif standard)">1 Semaine (Tarif standard)</option>
+                                <option value="2 Semaines (Réduction)">2 Semaines (Réduction)</option>
+                                <option value="1 Mois complet (Partenaire Premium)">1 Mois complet (Partenaire Premium)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Texte de l'affiche publicitaire & détails du contrat</label>
+                        <textarea name="description" rows="4" placeholder="Décrivez brièvement votre commerce et le slogan ou texte que vous souhaitez intégrer sur l'affiche..." required class="w-full border border-slate-700 rounded-lg p-2.5 bg-slate-950 text-white focus:border-amber-500 outline-hidden transition"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-lg shadow-lg shadow-amber-500/20 transition-all cursor-pointer">
+                        <i class="fa-solid fa-file-invoice-dollar mr-2"></i>Soumettre la demande de contrat
+                    </button>
+                </form>
+            </div>
+
+        </div>
+
+        <!-- SECTION ACTUALITÉS & PUBLICITÉS -->
+        <div class="mb-12">
+            <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <i class="fa-solid fa-newspaper text-slate-400"></i> Actualités & Annonces de Los Santos
+            </h2>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Bloc Actu 1 (Officiel EMS avec IMAGE : ls.jpeg) -->
+                <div class="card-hover bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl flex flex-col justify-between">
+                    <div>
+                        <div class="h-40 overflow-hidden bg-slate-950 relative">
+                            <img src="ls.jpeg" alt="Hopital Los Santos" class="zoom-img w-full h-full object-cover">
+                            <span class="absolute top-3 left-3 text-[10px] font-extrabold text-red-400 bg-slate-900/95 border border-red-900/30 backdrop-blur-md px-2.5 py-1 rounded-md tracking-wider uppercase shadow-xs">🔴 Note Officielle</span>
+                        </div>
+                        <div class="p-5">
+                            <h4 class="font-bold text-white mb-2 text-base">Recrudescence de la grippe de LS</h4>
+                            <p class="text-slate-400 text-xs leading-relaxed">Le personnel médical conseille le port du masque en centre-ville et invite les citoyens à passer faire un check-up gratuit en cas de fièvre.</p>
+                        </div>
+                    </div>
+                    <div class="bg-slate-950/50 px-5 py-3 border-t border-slate-800/60 text-[11px] text-slate-500">
+                        Mis à jour aujourd'hui
+                    </div>
+                </div>
+
+                <!-- Bloc Pub 2 (Sponsorisé avec IMAGE : bennys.webp) -->
+                <div class="card-hover bg-slate-900 border border-amber-900/50 rounded-2xl overflow-hidden shadow-xl flex flex-col justify-between">
+                    <div>
+                        <div class="h-40 overflow-hidden bg-slate-950 relative">
+                            <img src="bennys.webp" alt="Benny's Motorworks" class="zoom-img w-full h-full object-cover">
+                            <span class="absolute top-3 left-3 text-[10px] font-extrabold text-amber-400 bg-amber-950/90 border border-amber-800/40 backdrop-blur-md px-2.5 py-1 rounded-md tracking-wider uppercase flex items-center gap-1 shadow-xs">
+                                <i class="fa-solid fa-rectangle-ad"></i> Publicité
+                            </span>
+                        </div>
+                        <div class="p-5">
+                            <h4 class="font-bold text-white mb-2 text-base">Benny's Motorworks</h4>
+                            <p class="text-slate-400 text-xs leading-relaxed">Customisation complète, réparations express et kits de réparation moteur à prix cassés cette semaine. Passez au garage près des docks !</p>
+                        </div>
+                    </div>
+                    <div class="bg-amber-950/20 px-5 py-3 border-t border-amber-900/40 text-[11px] text-amber-400 font-medium">
+                        Sponsorisé • Contrat actif
+                    </div>
+                </div>
+
+                <!-- Bloc Pub 3 (Emplacement vide connecté au formulaire) -->
+                <div onclick="switchTab('pub')" class="card-hover bg-slate-900/30 border-2 border-dashed border-slate-800 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-amber-500/50 hover:bg-amber-950/5 transition-all duration-300 min-h-[280px] cursor-pointer group shadow-xl">
+                    <div class="p-5 flex flex-col items-center justify-center text-center my-auto">
+                        <div class="bg-slate-800 text-slate-400 w-12 h-12 rounded-full flex items-center justify-center mb-4 group-hover:bg-amber-500 group-hover:text-slate-950 transition-all duration-300 shadow-md">
+                            <i class="fa-solid fa-plus text-lg"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-300 group-hover:text-amber-400 text-base mb-1 transition-colors">Votre Pub Ici ?</h4>
+                        <p class="text-slate-500 text-xs max-w-[180px] mb-3">Cliquez ici pour louer cet espace et promouvoir votre entreprise !</p>
+                        <span class="inline-block bg-slate-800 text-slate-300 group-hover:bg-amber-950 group-hover:text-amber-400 border group-hover:border-amber-800 text-[11px] font-semibold px-2.5 py-1 rounded-full transition-colors">Réserver l'espace</span>
+                    </div>
+                    <div class="bg-slate-900/80 group-hover:bg-amber-950/40 px-5 py-3 border-t border-slate-800 group-hover:border-amber-900/40 text-[11px] text-slate-500 group-hover:text-amber-400 text-center font-medium transition-colors">
+                        Emplacement Libre
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- INFOS UTILES & FAQ RP -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+            <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-circle-info text-slate-400"></i> Informations d'Urgence RP
+            </h3>
+            <div class="grid md:grid-cols-3 gap-4 text-sm">
+                <div class="bg-slate-950/60 p-4 rounded-xl border border-slate-800/60 text-slate-300">
+                    <span class="font-bold text-white block mb-1">🚨 En jeu ?</span>
+                    Utilisez votre téléphone ou tapez la commande de dispatch appropriée pour contacter le service actif.
+                </div>
+                <div class="bg-slate-950/60 p-4 rounded-xl border border-slate-800/60 text-slate-300">
+                    <span class="font-bold text-white block mb-1">📅 Traitement</span>
+                    Les demandes de rendez-vous sont généralement validées sous 24h par un haut-gradé directement sur Discord.
+                </div>
+                <div class="bg-slate-950/60 p-4 rounded-xl border border-slate-800/60 text-slate-300">
+                    <span class="font-bold text-white block mb-1">📋 Recrutements</span>
+                    Si votre candidature est retenue, vous recevrez une convocation pour un entretien oral à l'Hôpital Central.
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER (PIED DE PAGE) -->
+    <footer class="bg-slate-900 border-t border-slate-800 mt-12 text-slate-400 text-sm relative z-10">
+        <div class="max-w-6xl mx-auto px-4 py-8">
+            <div class="grid md:grid-cols-3 gap-8 mb-6">
+                <div>
+                    <span class="font-bold text-white block mb-2">Prime RP • EMS</span>
+                    <p class="text-xs text-slate-500 leading-relaxed">Ce site est un outil communautaire de jeu de rôle (GTA V RP) destiné au serveur Prime RP. Aucun lien avec de véritables services médicaux.</p>
+                </div>
+                <div>
+                    <span class="font-bold text-white block mb-2">Liens utiles</span>
+                    <ul class="text-xs space-y-1.5 text-slate-400">
+                        <li><a href="#" class="hover:text-red-400 transition-colors">Rejoindre le Discord Municipal</a></li>
+                        <li><a href="#" class="hover:text-red-400 transition-colors">Règlement du serveur</a></li>
+                        <li><a href="#" class="hover:text-red-400 transition-colors">Contacter le staff Prime RP</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <span class="font-bold text-white block mb-2">Régie Publicitaire</span>
+                    <p class="text-xs text-slate-500 leading-relaxed mb-2">Vous gérez un commerce (Concess, Mécano, Club...) ? Boostez votre visibilité auprès des citoyens.</p>
+                    <span onclick="switchTab('pub')" class="inline-block bg-amber-950 text-amber-400 border border-amber-900/50 text-[11px] font-bold px-2 py-0.5 rounded-sm cursor-pointer hover:bg-amber-900 transition-colors">Remplir un dossier de pub</span>
+                </div>
+            </div>
+            <div class="border-t border-slate-800/80 pt-6 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500 gap-4">
+                <div>&copy; 2026 Prime RP. Tous droits réservés.</div>
+                <div class="flex space-x-4">
+                    <span>XAMPP Local Server</span>
+                    <span>•</span>
+                    <span class="text-slate-400 font-medium">Radio EMS : 911.0 MHz</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- LOGIQUE JAVASCRIPT GESTION D'ONGLET ET MULTI-ÉTAPES -->
+    <script>
+        // SCRIPT ULTRA-LÉGER DE GÉNÉRATION DE PARTICULES FICTIONNELLES
+        window.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('particle-container');
+            const particleCount = 25; // Nombre parfait pour garder de super perfs
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Un coup sur deux, la particule vire au bleu clair pour coller aux gyrophares EMS
+                if (Math.random() > 0.5) {
+                    particle.classList.add('particle-blue');
+                }
+
+                // Distribution aléatoire sur l'écran
+                const size = Math.random() * 5 + 2; // Entre 2px et 7px
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${Math.random() * 100}vw`;
+                
+                // Des vitesses et des délais asynchrones pour un rendu ultra fluide
+                particle.style.animationDuration = `${Math.random() * 8 + 6}s`;
+                particle.style.animationDelay = `${Math.random() * -12}s`;
+                
+                container.appendChild(particle);
+            }
+        });
+
+        // Changement global d'onglets du site
+        function switchTab(tabName) {
+            const container = document.getElementById('form-container');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            container.classList.remove('hidden', 'scale-100', 'opacity-100');
+            container.classList.add('scale-95', 'opacity-0');
+            
+            contents.forEach(content => content.classList.add('hidden'));
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            
+            setTimeout(() => {
+                container.classList.remove('scale-95', 'opacity-0');
+                container.classList.add('scale-100', 'opacity-100');
+                container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 50);
+
+            if (tabName === 'recrutement') {
+                currentStep = 1;
+                showStep(currentStep);
+            }
+        }
+
+        // 🏠 Retour à l'accueil : remonte la page et ferme les formulaires proprement
+function goHome(e) {
+    e.preventDefault();
+    const container = document.getElementById('form-container');
+    if (!container.classList.contains('hidden')) {
+        container.classList.remove('scale-100', 'opacity-100');
+        container.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            container.classList.add('hidden');
+        }, 400); // Temps aligné sur l'animation CSS
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+        // Système Multi-étapes pour le recrutement
+        let currentStep = 1;
+        const totalSteps = 4;
+
+        function showStep(step) {
+            document.querySelectorAll('.step-section').forEach(sec => sec.classList.add('hidden'));
+            document.getElementById(`step-${step}`).classList.remove('hidden');
+
+            document.getElementById('step-indicator').innerText = `Étape ${step} / ${totalSteps}`;
+            document.getElementById('progress-bar').style.width = `${(step / totalSteps) * 100}%`;
+
+            const prevBtn = document.getElementById('prev-btn');
+            if (step === 1) {
+                prevBtn.classList.add('invisible');
+            } else {
+                prevBtn.classList.remove('invisible');
+            }
+
+            const nextBtn = document.getElementById('next-btn');
+            const btnIcon = document.getElementById('btn-icon');
+            if (step === totalSteps) {
+                nextBtn.querySelector('span').innerText = "Soumettre ma candidature";
+                nextBtn.type = "submit";
+                btnIcon.className = "fa-solid fa-paper-plane ml-2";
+                nextBtn.classList.replace('bg-red-600', 'bg-emerald-600');
+                nextBtn.classList.replace('hover:bg-red-700', 'hover:bg-emerald-700');
+            } else {
+                nextBtn.querySelector('span').innerText = "Suivant";
+                nextBtn.type = "button";
+                btnIcon.className = "fa-solid fa-arrow-right ml-2";
+                nextBtn.classList.replace('bg-emerald-600', 'bg-red-600');
+                nextBtn.classList.replace('hover:bg-emerald-700', 'hover:bg-red-700');
+            }
+        }
+
+        function nextStep(increment) {
+            const form = document.getElementById('recruitment-form');
+            const currentInputs = document.getElementById(`step-${currentStep}`).querySelectorAll('input[required], textarea[required]');
+            
+            if (increment === 1) {
+                let allValid = true;
+                currentInputs.forEach(input => {
+                    if (!input.checkValidity()) {
+                        input.reportValidity();
+                        allValid = false;
+                    }
+                });
+                if (!allValid) return;
+            }
+
+            currentStep += increment;
+
+            if (currentStep <= totalSteps && currentStep >= 1) {
+                showStep(currentStep);
+                document.getElementById('form-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Détecter si le joueur revient du terminal pour ajouter une animation d'arrivée sur le site
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('from') === 'terminal') {
+                const mainContent = document.querySelector('main');
+                mainContent.style.opacity = '0';
+                mainContent.style.transform = 'translateY(15px)';
+                mainContent.style.transition = 'all 0.6s ease-out';
+                
+                setTimeout(() => {
+                    mainContent.style.opacity = '1';
+                    mainContent.style.transform = 'translateY(0)';
+                }, 150);
+                
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
+    </script>
+</body>
+</html>
